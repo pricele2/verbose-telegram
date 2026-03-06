@@ -230,6 +230,7 @@ math_lec8 = math_ex4 |> as_tibble() |>
   group_by(school_id) |> 
   mutate(pct = n_students / sum(n_students, na.rm = TRUE)) |> 
   ungroup()
+
 ## exercise 8 calc % create %var for each race/eth as % of district enrollmnt
 glimpse(ex_7)
 
@@ -241,3 +242,115 @@ ex_8 = ex_7 |> as_tibble() |>
   group_by(district_institution_id) |> 
   mutate(pct = n_students / sum(n_students)) |> 
   ungroup()
+
+# lect 9 binding data frames -----------------------------------
+
+# Load Packages -----------------------------------------------------------
+
+library(tidyverse)
+library(fs)
+library(readxl)
+library(janitor)
+
+# Create Directories ------------------------------------------------------
+
+# dir_create("data-raw")
+
+# Download Data -----------------------------------------------------------
+
+# https://www.oregon.gov/ode/reports-and-data/students/Pages/Student-Enrollment-Reports.aspx
+
+# download.file("https://www.oregon.gov/ode/reports-and-data/students/Documents/fallmembershipreport_20222023.xlsx",
+#               mode = "wb",
+#               destfile = "data-raw/fallmembershipreport_20222023.xlsx")
+# 
+# download.file("https://www.oregon.gov/ode/reports-and-data/students/Documents/fallmembershipreport_20212022.xlsx",
+#               mode = "wb",
+#               destfile = "data-raw/fallmembershipreport_20212022.xlsx")
+# 
+# download.file("https://www.oregon.gov/ode/reports-and-data/students/Documents/fallmembershipreport_20202021.xlsx",
+#               mode = "wb",
+#               destfile = "data-raw/fallmembershipreport_20202021.xlsx")
+# 
+# download.file("https://www.oregon.gov/ode/reports-and-data/students/Documents/fallmembershipreport_20192020.xlsx",
+#               mode = "wb",
+#               destfile = "data-raw/fallmembershipreport_20192020.xlsx")
+# 
+# download.file("https://www.oregon.gov/ode/reports-and-data/students/Documents/fallmembershipreport_20182019.xlsx",
+#               mode = "wb",
+#               destfile = "data-raw/fallmembershipreport_20182019.xlsx")
+
+# Import Data -------------------------------------------------------------
+
+enrollment_2022_2023 <- read_excel(path = "data-raw/membership_2223.xlsx", sheet = "School 2022-23") |> 
+  clean_names()
+
+enrollment_2021_2022 <- read_excel(path = "data-raw/membership_2122.xlsx",
+                                   sheet = "School 2021-22") |> 
+  clean_names()
+
+# Tidy and Clean Data -----------------------------------------------------
+
+enrollment_by_race_ethnicity_2022_2023 <-
+  enrollment_2022_2023 |> 
+  select(district_institution_id, school_institution_id,
+         x2022_23_american_indian_alaska_native:x2022_23_multi_racial) |> 
+  select(-contains("percent")) |> 
+  pivot_longer(cols = -c(district_institution_id, school_institution_id),
+               names_to = "race_ethnicity",
+               values_to = "number_of_students") |> 
+  mutate(race_ethnicity = str_remove(race_ethnicity, pattern = "x2022_23_")) |> 
+  mutate(race_ethnicity = case_when(
+    race_ethnicity == "american_indian_alaska_native" ~ "AIAN",
+    race_ethnicity == "asian" ~ "Asian",
+    race_ethnicity == "black_african_american" ~ "AFAM",
+    race_ethnicity == "hispanic_latino" ~ "HISP/LTX",
+    race_ethnicity == "multiracial" ~ "MULTI",
+    race_ethnicity == "native_hawaiian_pacific_islander" ~ "NHPI",
+    race_ethnicity == "white" ~ "WHIT",
+    race_ethnicity == "multi_racial" ~ "MULTI"
+  )) |> 
+  mutate(number_of_students = parse_number(number_of_students, na = c("-"))) |> 
+  group_by(district_institution_id, race_ethnicity) |> 
+  summarize(number_of_students = sum(number_of_students, na.rm = TRUE)) |> 
+  ungroup() |> 
+  group_by(district_institution_id) |> 
+  mutate(pct = number_of_students / sum(number_of_students)) |> 
+  ungroup() |> 
+  mutate(year = "22-23")
+
+enrollment_by_race_ethnicity_2021_2022 <-
+  enrollment_2021_2022 |> 
+  select(attending_district_institution_id, attending_school_institution_id,
+         x2021_22_american_indian_alaska_native:x2021_22_multi_racial) |> 
+  rename(district_institution_id = attending_district_institution_id,
+         school_institution_id = attending_school_institution_id) |> 
+  select(-contains("percent")) |> 
+  pivot_longer(cols = -c(district_institution_id, school_institution_id),
+               names_to = "race_ethnicity",
+               values_to = "number_of_students") |> 
+  mutate(race_ethnicity = str_remove(race_ethnicity, pattern = "x2021_22_")) |> 
+    mutate(race_ethnicity = case_when(
+      race_ethnicity == "american_indian_alaska_native" ~ "AIAN",
+      race_ethnicity == "asian" ~ "Asian",
+      race_ethnicity == "black_african_american" ~ "AFAM",
+      race_ethnicity == "hispanic_latino" ~ "HISP/LTX",
+      race_ethnicity == "multiracial" ~ "MULTI",
+      race_ethnicity == "native_hawaiian_pacific_islander" ~ "NHPI",
+      race_ethnicity == "white" ~ "WHIT",
+      race_ethnicity == "multi_racial" ~ "MULTI"
+    )) |>
+  mutate(number_of_students = parse_number(number_of_students, na = c("-"))) |> 
+  group_by(district_institution_id, race_ethnicity) |> 
+  summarize(number_of_students = sum(number_of_students, na.rm = TRUE)) |> 
+  ungroup() |> 
+  group_by(district_institution_id) |> 
+  mutate(pct = number_of_students / sum(number_of_students)) |> 
+  ungroup() |> 
+  mutate(year = "21-22")
+
+enrollment_by_race_ethnicity <-
+  bind_rows(enrollment_by_race_ethnicity_2021_2022,
+            enrollment_by_race_ethnicity_2022_2023)
+
+
