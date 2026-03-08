@@ -283,11 +283,13 @@ library(janitor)
 # Import Data -------------------------------------------------------------
 
 enrollment_2022_2023 <- read_excel(path = "data-raw/membership_2223.xlsx", sheet = "School 2022-23") |> 
-  clean_names()
+  clean_names() 
+colnames(enrollment_2022_2023)
 
 enrollment_2021_2022 <- read_excel(path = "data-raw/membership_2122.xlsx",
                                    sheet = "School 2021-22") |> 
   clean_names()
+colnames(enrollment_2021_2022)
 
 # Tidy and Clean Data -----------------------------------------------------
 
@@ -353,4 +355,99 @@ enrollment_by_race_ethnicity <-
   bind_rows(enrollment_by_race_ethnicity_2021_2022,
             enrollment_by_race_ethnicity_2022_2023)
 
+# lect 10 FUNCTIONS -------------------------------------------------------
+# Note: Functions have to be told explicitly to return the output and create it as an object # set_names() may also be super helpful here
 
+# Load Packages -----------------------------------------------------------
+
+library(tidyverse)
+library(fs)
+library(readxl)
+library(janitor)
+
+# Create Raw and Download XLSXs -------------------------------------------
+dir_create("data-raw")
+
+## Download Data -----------------------------------------------------------
+
+# https://www.oregon.gov/ode/reports-and-data/students/Pages/Student-Enrollment-Reports.aspx
+
+# fn() to Import, Reshape, and Clean Data --------------------------------------
+# test values
+# path = "data-raw/membership_2223.xlsx", sheet = "School 2022-23", prefix = "x2021_22_"
+# don't trip yourself up on double quotes -- leave the quotes out of the function
+
+clean_enrollment_file <- function(excel_file, sheet_name, prefix) 
+  {
+read_excel(path = excel_file, sheet = sheet_name) |> 
+  clean_names() |> 
+select(!c(contains("percent"), contains("grade"), contains("total"), contains("name"), contains("kinder"))) |> 
+   rename(district_id = 1, school_id = 2) |> 
+  pivot_longer(cols = -c(district_id, school_id),
+               names_to = "race_ethnicity",
+               values_to = "number_of_students") |> 
+  mutate(race_ethnicity = str_remove(race_ethnicity, pattern = prefix)) |>
+    mutate(race_ethnicity = case_when(
+      race_ethnicity == "american_indian_alaska_native" ~ "AIAN",
+      race_ethnicity == "asian" ~ "Asian",
+      race_ethnicity == "black_african_american" ~ "AFAM",
+      race_ethnicity == "hispanic_latino" ~ "HISP/LTX",
+      race_ethnicity == "multiracial" ~ "MULTI",
+      race_ethnicity == "native_hawaiian_pacific_islander" ~ "NHPI",
+      race_ethnicity == "white" ~ "WHIT",
+      race_ethnicity == "multi_racial" ~ "MULTI"
+    )) |>
+  mutate(number_of_students = parse_number(number_of_students, na = c("-"))) |> 
+    group_by(district_id, race_ethnicity) |> 
+    summarize(number_of_students = sum(number_of_students, na.rm = TRUE)) |> 
+    ungroup() |> 
+    group_by(district_id) |> 
+    mutate(pct = number_of_students / sum(number_of_students)) |> 
+    ungroup() |> 
+    mutate(year = sheet_name) |> 
+    mutate(year = str_remove(year, "School "))
+  }
+
+enr_byrace_2122 = 
+  clean_enrollment_file(excel_file = "data-raw/membership_2122.xlsx",
+                            sheet_name = "School 2021-22",
+                            prefix = "x2021_22_")
+
+enr_byrace_2223 = 
+  clean_enrollment_file(excel_file = "data-raw/membership_2223.xlsx",
+                        sheet_name = "School 2022-23",
+                        prefix = "x2022_23_")
+
+enr_twoyears = bind_rows(enr_byrace_2122, enr_byrace_2223)
+
+
+# lect 11 Joins!  -----------------------------------------------------
+
+# good ol dplyr again: left, right, anti, semi, inner, full 
+
+download.file("https://github.com/rfortherestofus/going-deeper-v2/raw/main/data-raw/oregon-districts.xlsx",
+              mode = "wb",
+              destfile = "data-raw/oregon-districts.xlsx")
+
+oregon_districts = 
+  read_excel(path = "data-raw/oregon-districts.xlsx", sheet = 1) |> 
+  clean_names() |> 
+  rename(district_id = 1, district_name = 2)
+
+dist_enr_race_twoyrs = left_join(enr_twoyears, oregon_districts, by = "district_id")
+
+# lect 12 Export to CSV and RDS ---------------------------------------------------
+
+dir_create("data")
+
+write_csv(dist_enr_race_twoyrs, 
+          file = "data/enroll_bydist_byrace_2years.csv")
+
+write_rds(dist_enr_race_twoyrs, 
+          file = "data/enroll_bydist_byrace_2years.rds")
+
+# lect 13 adv wrangling ---------------------------------------------------
+
+# does a project top to bottom 
+# best practice guidance: do your cleaning and wrangling in an R script and *then* 
+# export the RDS into the directory for quarto to pick it up 
