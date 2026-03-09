@@ -420,7 +420,6 @@ enr_byrace_2223 =
 
 enr_twoyears = bind_rows(enr_byrace_2122, enr_byrace_2223)
 
-
 # lect 11 Joins!  -----------------------------------------------------
 
 # good ol dplyr again: left, right, anti, semi, inner, full 
@@ -451,3 +450,71 @@ write_rds(dist_enr_race_twoyrs,
 # does a project top to bottom 
 # best practice guidance: do your cleaning and wrangling in an R script and *then* 
 # export the RDS into the directory for quarto to pick it up 
+
+
+# Work through additional years -------------------------------------------
+
+## 1516 
+# Deleted M/F and cols 2 & 4 (names), replaced '-   ' 0 with '- ; renamed tab
+enr_byrace_1516 = 
+  clean_enrollment_file(excel_file = "data-raw/membership_1516.xlsx",
+                        sheet_name = "School 2015-16",
+                        prefix = "x2015_16_")
+
+## 1617 
+enr_byrace_1617 = 
+  clean_enrollment_file(excel_file = "data-raw/membership_1617.xlsx",
+                        sheet_name = "School 2016-17",
+                        prefix = "x2016_17_")
+  
+## 1718 
+enr_byrace_1718 = 
+  clean_enrollment_file(excel_file = "data-raw/membership_1718.xlsx",
+                        sheet_name = "School 2017-18",
+                        prefix = "x2017_18_")
+
+## 1819
+enr_byrace_1819 = 
+  clean_enrollment_file(excel_file = "data-raw/membership_1819.xlsx",
+                        sheet_name = "School 2018-19",
+                        prefix = "x2018_19_")
+
+## 1920
+enr_byrace_1920 = 
+  clean_enrollment_file(excel_file = "data-raw/membership_1920.xlsx",
+                        sheet_name = "School 2019-20",
+                        prefix = "x2019_20_")
+
+## 2021
+enr_byrace_2021 = 
+  clean_enrollment_file(excel_file = "data-raw/membership_2021.xlsx",
+                        sheet_name = "School 2020-21",
+                        prefix = "x2020_21_")
+## 2122
+enr_byrace_2122 = 
+  clean_enrollment_file(excel_file = "data-raw/membership_2122.xlsx",
+                        sheet_name = "School 2021-22",
+                        prefix = "x2021_22_")
+
+## 2223
+enr_byrace_2223 = 
+  clean_enrollment_file(excel_file = "data-raw/membership_2223.xlsx",
+                        sheet_name = "School 2022-23",
+                        prefix = "x2022_23_")
+
+## 2324
+enr_byrace_2324 = 
+  clean_enrollment_file(excel_file = "data-raw/membership_2324.xlsx",
+                        sheet_name = "School 2023-24",
+                        prefix = "x2023_24_")
+
+## Combine ----
+enr_allyears = bind_rows(enr_byrace_1516, enr_byrace_1617, enr_byrace_1718, enr_byrace_1819, enr_byrace_1920, enr_byrace_2021, enr_byrace_2122, enr_byrace_2223, enr_byrace_2324)
+
+dist_enr_all = left_join(enr_allyears, oregon_districts, by = "district_id")
+
+write_csv(dist_enr_all, 
+          file = "data/enroll_bydist_byrace_allyears.csv")
+
+write_rds(dist_enr_all, 
+          file = "data/enroll_bydist_byrace_allyears.rds")
