@@ -130,7 +130,6 @@ enroll_2122 =
 # Same with enroll_* files, wildly wide and just long by district wide by var
 
 # lect 3 ------------------------------------------------------------------
-
 ## Tidy Rule 1 - Every column is a variable --------------------------------
 # using pivot_longer() from tidyr
 # excellent cheat: pivot_longer(cols = -state) # name them via negativa
@@ -170,7 +169,8 @@ math_ex4 = math_gr3_2122 |>
   mutate(prof_level = parse_number(proficiency_level)) # no quotes within function
 
 ## assignment 4 ----
-clean up ex_3 using recode, if_else, or case_when
+# clean up ex_3 using recode, if_else, or case_when
+
 ex_4 = ex_3 |> 
   mutate(temp = str_remove(race_ethnicity, "x2022_23_")) |> 
   select(!race_ethnicity) |> 
@@ -245,18 +245,19 @@ ex_8 = ex_7 |> as_tibble() |>
 
 # lect 9 binding data frames -----------------------------------
 
-# Load Packages -----------------------------------------------------------
+
+## Load Packages -----------------------------------------------------------
 
 library(tidyverse)
 library(fs)
 library(readxl)
 library(janitor)
 
-# Create Directories ------------------------------------------------------
+## Create Directories ------------------------------------------------------
 
 # dir_create("data-raw")
 
-# Download Data -----------------------------------------------------------
+## Download Data -----------------------------------------------------------
 
 # https://www.oregon.gov/ode/reports-and-data/students/Pages/Student-Enrollment-Reports.aspx
 
@@ -280,7 +281,7 @@ library(janitor)
 #               mode = "wb",
 #               destfile = "data-raw/fallmembershipreport_20182019.xlsx")
 
-# Import Data -------------------------------------------------------------
+## Import Data -------------------------------------------------------------
 
 enrollment_2022_2023 <- read_excel(path = "data-raw/membership_2223.xlsx", sheet = "School 2022-23") |> 
   clean_names() 
@@ -291,7 +292,7 @@ enrollment_2021_2022 <- read_excel(path = "data-raw/membership_2122.xlsx",
   clean_names()
 colnames(enrollment_2021_2022)
 
-# Tidy and Clean Data -----------------------------------------------------
+## Tidy and Clean Data -----------------------------------------------------
 
 enrollment_by_race_ethnicity_2022_2023 <-
   enrollment_2022_2023 |> 
@@ -518,3 +519,4 @@ write_csv(dist_enr_all,
 
 write_rds(dist_enr_all, 
           file = "data/enroll_bydist_byrace_allyears.rds")
+
