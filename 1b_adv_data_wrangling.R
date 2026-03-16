@@ -13,53 +13,53 @@ library(janitor)
 # Ideally I could do this as a nested function via purrr BUT there is too much variation in filenaming within the URLs 
 
 # 2324
-download.file("https://www.oregon.gov/ode/educator-resources/assessment/Documents/TestResults2324/pagr_schools_math_tot_raceethnicity_2324.xlsx",
-              mode = "wb",
-              destfile = "data-raw/math2324.xlsx")
+# download.file("https://www.oregon.gov/ode/educator-resources/assessment/Documents/TestResults2324/pagr_schools_math_tot_raceethnicity_2324.xlsx",
+#               mode = "wb",
+#               destfile = "data-raw/math2324.xlsx")
 math2324 <- read_excel(path = "data-raw/math2324.xlsx") |> clean_names()
 col.names = colnames(math2324) # Assign vector
 
 # 2223
-download.file("https://www.oregon.gov/ode/educator-resources/assessment/Documents/TestResults2223/pagr_schools_math_tot_raceethnicity_2223.xlsx",
-              mode = "wb",
-              destfile = "data-raw/math2223.xlsx")
+# download.file("https://www.oregon.gov/ode/educator-resources/assessment/Documents/TestResults2223/pagr_schools_math_tot_raceethnicity_2223.xlsx",
+#               mode = "wb",
+#               destfile = "data-raw/math2223.xlsx")
 math2223 <- read_excel(path = "data-raw/math2223.xlsx") |> clean_names()
 colnames(math2223) = col.names # Standardize colnames to 2324 
 
 # 2122
-download.file("https://www.oregon.gov/ode/educator-resources/assessment/Documents/TestResults2122/pagr_schools_math_tot_raceethnicity_2122.xlsx",
-              mode = "wb",
-              destfile = "data-raw/math2122.xlsx")
+# download.file("https://www.oregon.gov/ode/educator-resources/assessment/Documents/TestResults2122/pagr_schools_math_tot_raceethnicity_2122.xlsx",
+#               mode = "wb",
+#               destfile = "data-raw/math2122.xlsx")
 math2122 <- read_excel(path = "data-raw/math2122.xlsx") |> clean_names()
 colnames(math2122) = col.names # Standardize colnames to 2324 
 
 # No 1920 or 2021 files 
 
 # 1819
-download.file("https://www.oregon.gov/ode/educator-resources/assessment/Documents/TestResults2122/TestResults2019/pagr_schools_math_tot_raceethnicity_1819.xlsx",
-              mode = "wb",
-              destfile = "data-raw/math1819.xlsx")
+# download.file("https://www.oregon.gov/ode/educator-resources/assessment/Documents/TestResults2122/TestResults2019/pagr_schools_math_tot_raceethnicity_1819.xlsx",
+#               mode = "wb",
+#               destfile = "data-raw/math1819.xlsx")
 math1819 = read_excel(path = "data-raw/math1819.xlsx") |> clean_names()
 colnames(math1819) = col.names # Standardize colnames to 2324 
 
 # 1718
-download.file("https://www.oregon.gov/ode/educator-resources/assessment/TestResults2018/pagr_schools_math_raceethnicity_1718.xlsx",
-              mode = "wb",
-              destfile = "data-raw/math1718.xlsx")
+# download.file("https://www.oregon.gov/ode/educator-resources/assessment/TestResults2018/pagr_schools_math_raceethnicity_1718.xlsx",
+#               mode = "wb",
+#               destfile = "data-raw/math1718.xlsx")
 math1718 = read_excel(path = "data-raw/math1718.xlsx") |> clean_names()
 colnames(math1718) = col.names # Standardize colnames to 2324 
 
 # 1617
-download.file("https://www.oregon.gov/ode/educator-resources/assessment/TestResults2017/pagr_schools_math_raceethnicity_1617.xlsx",
-              mode = "wb",
-              destfile = "data-raw/math1617.xlsx")
+# download.file("https://www.oregon.gov/ode/educator-resources/assessment/TestResults2017/pagr_schools_math_raceethnicity_1617.xlsx",
+#               mode = "wb",
+#               destfile = "data-raw/math1617.xlsx")
 math1617 = read_excel(path = "data-raw/math1617.xlsx") |> clean_names()
   colnames(math1617) = col.names # Standardize colnames to 2324 
 
 # 1516
-download.file("https://www.oregon.gov/ode/educator-resources/assessment/TestResults2016/pagr_schools_math_raceethnicity_1516.xlsx",
-              mode = "wb",
-              destfile = "data-raw/math1516.xlsx")
+# download.file("https://www.oregon.gov/ode/educator-resources/assessment/TestResults2016/pagr_schools_math_raceethnicity_1516.xlsx",
+#               mode = "wb",
+#               destfile = "data-raw/math1516.xlsx")
 math1516 = read_excel(path = "data-raw/math1516.xlsx") |> clean_names() 
   colnames(math1516) = col.names # Standardize colnames to 2324 
 
